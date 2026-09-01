@@ -17,17 +17,17 @@
 # =====================================================================
 
 meta:
-financial_year: "2025-26" # shown in the app header
-assessment_year: "2026-27"
-default_regime: new # "new" or "old" (new is the legal default)
-rounding_rupees: 10 # final tax rounded to nearest N (Income Tax Sec 288B = 10)
+  financial_year: "2025-26" # shown in the app header
+  assessment_year: "2026-27"
+  default_regime: new # "new" or "old" (new is the legal default)
+  rounding_rupees: 10 # final tax rounded to nearest N (Income Tax Sec 288B = 10)
 
 # ---------------------------------------------------------------------
 # CESS — charged on (income tax + surcharge) in BOTH regimes.
 # ---------------------------------------------------------------------
 cess:
-name: "Health & Education Cess"
-rate: 4
+  name: "Health & Education Cess"
+  rate: 4
 
 # ---------------------------------------------------------------------
 # SURCHARGE — an extra % ON THE TAX (not on income), for high incomes.
@@ -36,12 +36,12 @@ rate: 4
 # FY-CHECK: surcharge bands rarely change; verify after the Budget.
 # ---------------------------------------------------------------------
 surcharge:
-marginal_relief: true
-bands:
-- {income_above: 5000000, rate_old: 10, rate_new: 10} # above 50 lakh
-- {income_above: 10000000, rate_old: 15, rate_new: 15} # above 1 crore
-- {income_above: 20000000, rate_old: 25, rate_new: 25} # above 2 crore
-- {income_above: 50000000, rate_old: 37, rate_new: 25} # above 5 crore (new is capped at 25%)
+  marginal_relief: true
+  bands:
+    - {income_above: 5000000, rate_old: 10, rate_new: 10} # above 50 lakh
+    - {income_above: 10000000, rate_old: 15, rate_new: 15} # above 1 crore
+    - {income_above: 20000000, rate_old: 25, rate_new: 25} # above 2 crore
+    - {income_above: 50000000, rate_old: 37, rate_new: 25} # above 5 crore (new is capped at 25%)
 
 # ---------------------------------------------------------------------
 # NEW REGIME (Section 115BAC) — the default regime.
@@ -49,21 +49,21 @@ bands:
 # FY 2026-27. Verify slabs / standard deduction / 87A yearly.
 # ---------------------------------------------------------------------
 new_regime:
-standard_deduction: 75000 # for salaried / pensioners
-slabs:
-- {up_to: 400000, rate: 0}
-- {up_to: 800000, rate: 5}
-- {up_to: 1200000, rate: 10}
-- {up_to: 1600000, rate: 15}
-- {up_to: 2000000, rate: 20}
-- {up_to: 2400000, rate: 25}
-- {up_to: null, rate: 30} # above 24,00,000
-rebate_87a:
-max_taxable_income: 1200000 # full rebate if taxable income is up to this
-max_rebate: 60000 # biggest rebate the govt gives
-marginal_relief: true # tax just above the limit is softened (do not change)
+  standard_deduction: 75000 # for salaried / pensioners
+  slabs:
+    - {up_to: 400000, rate: 0}
+    - {up_to: 800000, rate: 5}
+    - {up_to: 1200000, rate: 10}
+    - {up_to: 1600000, rate: 15}
+    - {up_to: 2000000, rate: 20}
+    - {up_to: 2400000, rate: 25}
+    - {up_to: null, rate: 30} # above 24,00,000
+  rebate_87a:
+    max_taxable_income: 1200000 # full rebate if taxable income is up to this
+    max_rebate: 60000 # biggest rebate the govt gives
+    marginal_relief: true # tax just above the limit is softened (do not change)
 # The few deductions still allowed in the new regime:
-employer_nps_80ccd2_percent_of_basic: 14 # employer's NPS contribution, up to 14% of basic
+  employer_nps_80ccd2_percent_of_basic: 14 # employer's NPS contribution, up to 14% of basic
 
 # ---------------------------------------------------------------------
 # OLD REGIME (optional — you opt in when filing).
@@ -72,34 +72,34 @@ employer_nps_80ccd2_percent_of_basic: 14 # employer's NPS contribution, up to 14
 # per Budget 2026. The HRA metro list MAY expand (see below).
 # ---------------------------------------------------------------------
 old_regime:
-standard_deduction: 50000
+  standard_deduction: 50000
 # Slabs differ by age — the app picks the right set from the age you enter.
-slabs_by_age:
-below_60:
-- {up_to: 250000, rate: 0}
-- {up_to: 500000, rate: 5}
-- {up_to: 1000000, rate: 20}
-- {up_to: null, rate: 30}
-senior_60_to_79:
-- {up_to: 300000, rate: 0}
-- {up_to: 500000, rate: 5}
-- {up_to: 1000000, rate: 20}
-- {up_to: null, rate: 30}
-super_senior_80_plus:
-- {up_to: 500000, rate: 0}
-- {up_to: 1000000, rate: 20}
-- {up_to: null, rate: 30}
-rebate_87a:
-max_taxable_income: 500000
-max_rebate: 12500
-marginal_relief: false # old-regime 87A is a hard cut-off (1 rupee over = full tax)
+  slabs_by_age:
+    below_60:
+      - {up_to: 250000, rate: 0}
+      - {up_to: 500000, rate: 5}
+      - {up_to: 1000000, rate: 20}
+      - {up_to: null, rate: 30}
+    senior_60_to_79:
+      - {up_to: 300000, rate: 0}
+      - {up_to: 500000, rate: 5}
+      - {up_to: 1000000, rate: 20}
+      - {up_to: null, rate: 30}
+    super_senior_80_plus:
+      - {up_to: 500000, rate: 0}
+      - {up_to: 1000000, rate: 20}
+      - {up_to: null, rate: 30}
+  rebate_87a:
+    max_taxable_income: 500000
+    max_rebate: 12500
+    marginal_relief: false # old-regime 87A is a hard cut-off (1 rupee over = full tax)
 # HRA exemption = least of: (a) actual HRA, (b) metro/non-metro % of (basic+DA),
 # (c) rent paid minus 10% of (basic+DA).
-hra:
-metro_percent: 50
-non_metro_percent: 40
-rent_minus_percent_of_salary: 10
-metro_cities: [Delhi, Mumbai, Chennai, Kolkata]
+  hra:
+    metro_percent: 50
+    non_metro_percent: 40
+    rent_minus_percent_of_salary: 10
+    metro_cities: [Delhi, Mumbai, Chennai, Kolkata]
 # FY-CHECK: a rumoured rule adds Bengaluru, Hyderabad, Pune, Ahmedabad
 # from 01-Apr-2026. NOT yet confirmed against a govt notification —
 # verify before adding them to the list above.
@@ -107,9 +107,9 @@ metro_cities: [Delhi, Mumbai, Chennai, Kolkata]
 # app; the app automatically caps it to these numbers. null = no cap.
 # Senior-citizen toggles. The app shows each as a checkbox; a deduction
 # below can point at one via "senior_flag" to switch to its higher limit.
-senior_flags:
-- {key: selfSenior, label: "I / the eldest insured person is 60+ (raises 80D limit)"}
-- {key: parentsSenior, label: "My parents are 60+ (raises 80D-parents limit)"}
+  senior_flags:
+    - {key: selfSenior, label: "I / the eldest insured person is 60+ (raises 80D limit)"}
+    - {key: parentsSenior, label: "My parents are 60+ (raises 80D-parents limit)"}
 # DEDUCTION FIELDS. The app auto-creates an input box, does the tax maths,
 # and adds a planner row for EACH line below. To add a new simple deduction
 # in a future year, just add one line here — nothing else to touch.
@@ -120,25 +120,25 @@ senior_flags:
 # Optional higher senior limit — set cap_senior AND one of:
 # senior_flag: <a key from senior_flags above> (user ticks the box)
 # senior_by_age: true (applied when age >= 60)
-deduction_fields:
-- {key: c80, label: "80C investments", hint: "PF, ELSS, LIC, PPF… (max 1.5L)", cap: 150000}
-- {key: ccd1b, label: "80CCD(1B) NPS", hint: "extra NPS (max 50k)", cap: 50000}
-- {key: d80_self, label: "80D — self / family", hint: "health insurance", cap: 25000, cap_senior: 50000, senior_flag: selfSenior}
-- {key: d80_par, label: "80D — parents", hint: "health insurance", cap: 25000, cap_senior: 50000, senior_flag: parentsSenior}
-- {key: home24b, label: "Home-loan interest 24(b)", hint: "self-occupied (max 2L)", cap: 200000}
-- {key: edu80e, label: "80E education-loan interest", hint: "no limit", cap: null}
-- {key: interest, label: "Savings / FD interest", hint: "80TTA / 80TTB", cap: 10000, cap_senior: 50000, senior_by_age: true}
+  deduction_fields:
+    - {key: c80, label: "80C investments", hint: "PF, ELSS, LIC, PPF… (max 1.5L)", cap: 150000}
+    - {key: ccd1b, label: "80CCD(1B) NPS", hint: "extra NPS (max 50k)", cap: 50000}
+    - {key: d80_self, label: "80D — self / family", hint: "health insurance", cap: 25000, cap_senior: 50000, senior_flag: selfSenior}
+    - {key: d80_par, label: "80D — parents", hint: "health insurance", cap: 25000, cap_senior: 50000, senior_flag: parentsSenior}
+    - {key: home24b, label: "Home-loan interest 24(b)", hint: "self-occupied (max 2L)", cap: 200000}
+    - {key: edu80e, label: "80E education-loan interest", hint: "no limit", cap: null}
+    - {key: interest, label: "Savings / FD interest", hint: "80TTA / 80TTB", cap: 10000, cap_senior: 50000, senior_by_age: true}
 
 # ---------------------------------------------------------------------
 # PAYROLL — used to work out take-home pay and to estimate a salary
 # breakup from CTC in Simple mode. These are conventions, not tax law.
 # ---------------------------------------------------------------------
 payroll:
-epf_employee_percent: 12 # your PF: 12% of basic
-epf_wage_ceiling: 15000 # statutory PF ceiling (used only if you turn the ceiling toggle on)
-gratuity_percent_of_basic: 4.81 # gratuity provision inside CTC
-employer_pf_percent_of_basic: 12 # employer's PF share inside CTC
-default_basic_percent_of_ctc: 40 # Simple mode assumes basic is this % of CTC
+  epf_employee_percent: 12 # your PF: 12% of basic
+  epf_wage_ceiling: 15000 # statutory PF ceiling (used only if you turn the ceiling toggle on)
+  gratuity_percent_of_basic: 4.81 # gratuity provision inside CTC
+  employer_pf_percent_of_basic: 12 # employer's PF share inside CTC
+  default_basic_percent_of_ctc: 40 # Simple mode assumes basic is this % of CTC
 
 # ---------------------------------------------------------------------
 # PROFESSIONAL TAX — a small state tax, deductible only in the OLD
@@ -147,19 +147,19 @@ default_basic_percent_of_ctc: 40 # Simple mode assumes basic is this % of CTC
 # FY-CHECK: states revise these occasionally; verify your state.
 # ---------------------------------------------------------------------
 professional_tax:
-annual_cap: 2500
-by_state:
-"Tamil Nadu": 2500
-Maharashtra: 2500
-Karnataka: 2400
-"West Bengal": 2400
-Telangana: 2400
-"Andhra Pradesh": 2400
-Gujarat: 2400
-"Madhya Pradesh": 2500
-Odisha: 2500
-Assam: 2500
-Kerala: 2500
-Bihar: 2500
-Jharkhand: 2500
-default: 0 # Delhi, UP, Haryana, Rajasthan, etc. levy no professional tax
+  annual_cap: 2500
+  by_state:
+    "Tamil Nadu": 2500
+    Maharashtra: 2500
+    Karnataka: 2400
+    "West Bengal": 2400
+    Telangana: 2400
+    "Andhra Pradesh": 2400
+    Gujarat: 2400
+    "Madhya Pradesh": 2500
+    Odisha: 2500
+    Assam: 2500
+    Kerala: 2500
+    Bihar: 2500
+    Jharkhand: 2500
+    default: 0 # Delhi, UP, Haryana, Rajasthan, etc. levy no professional tax
