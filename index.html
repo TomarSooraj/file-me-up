@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Me Up — India Salary & Tax Calculator</title>
+<style>
+:root{
+--bg:#f4f6f9; --card:#ffffff; --ink:#1a2233; --muted:#66738a; --line:#e3e8ef;
+--brand:#2563eb; --brand-soft:#eef4ff; --good:#0f9d58; --good-soft:#e7f6ee;
+--warn:#c8781a; --warn-soft:#fdf3e5; --bad:#d1483d; --accent:#7c3aed;
+--shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
+--radius:14px;
+}
+@media (prefers-color-scheme: dark){
+:root{
+--bg:#0f1420; --card:#171d2b; --ink:#e8edf5; --muted:#93a0b5; --line:#28303f;
+--brand:#4f83ff; --brand-soft:#18233d; --good:#34c98a; --good-soft:#12271f;
+--warn:#e0a24a; --warn-soft:#2a2115; --bad:#f0776b; --accent:#a685f5;
+--shadow:0 1px 3px rgba(0,0,0,.4);
+}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 64px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:6px}
+header h1{font-size:1.45rem;margin:0;letter-spacing:-.02em;display:inline-flex;align-items:center;gap:.4em}
+.flag{height:.95em;width:auto;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 18px}
+.badge{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:999px;
+background:var(--brand-soft);color:var(--brand);white-space:nowrap;cursor:pointer;user-select:none}
+.badge:hover{box-shadow:0 0 0 2px var(--brand) inset}
+.dot{font-size:.72rem;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+.dot b{font-weight:600}
+.ok{color:var(--good)} .err{color:var(--bad)}
+.banner{background:var(--warn-soft);border:1px solid var(--warn);color:var(--ink);
+padding:12px 14px;border-radius:10px;margin:10px 0;font-size:.9rem}
+.banner code{background:rgba(0,0,0,.08);padding:1px 6px;border-radius:5px}
+.tabs{display:inline-flex;background:var(--card);border:1px solid var(--line);
+border-radius:999px;padding:4px;margin-bottom:18px;box-shadow:var(--shadow)}
+.tabs button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;
+padding:8px 20px;border-radius:999px;cursor:pointer}
+.tabs button.active{background:var(--brand);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card h2{font-size:1.02rem;margin:0 0 14px}
+.card h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+margin:20px 0 10px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 14px}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:5px}
+label .hint{font-weight:400;color:var(--muted)}
+input[type=number],select{width:100%;padding:9px 11px;border:1px solid var(--line);
+border-radius:9px;background:var(--bg);color:var(--ink);font:inherit}
+input[type=number]:focus,select:focus{outline:2px solid var(--brand);border-color:var(--brand)}
+.field-money{position:relative}
+.field-money input{padding-left:24px}
+.field-money::before{content:"₹";position:absolute;left:11px;bottom:0;height:44px;line-height:44px;
+color:var(--muted);font-size:.9rem;pointer-events:none}
+/* make every input/select in a row sit at the bottom, so labels of different
+lengths (even 2-line ones) don't knock the fields — and the ₹ — out of line */
+.grid>div{display:flex;flex-direction:column}
+.grid>div>input,.grid>div>select{margin-top:auto}
+.check{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;margin-top:6px}
+.check input{width:16px;height:16px;accent-color:var(--brand)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg label{margin:0}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:7px 16px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--muted)}
+.seg input:checked + span{background:var(--brand);color:#fff}
+details.assume{margin-top:6px}
+details.assume summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--brand)}
+details.assume .grid{margin-top:12px}
+/* results */
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.hero .tile{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px}
+.hero .tile .k{font-size:.78rem;color:var(--muted);font-weight:600}
+.hero .tile .v{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.hero .tile .s{font-size:.76rem;color:var(--muted)}
+.tile.pick{border-color:var(--good);background:var(--good-soft)}
+.verdict{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--good-soft);
+border:1px solid var(--good);font-size:.92rem;font-weight:600}
+.verdict.tie{background:var(--brand-soft);border-color:var(--brand)}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:6px}
+th,td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+tr.total td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
+td.pos{color:var(--good)} td.neg{color:var(--bad)}
+.pill{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.pill.new{background:var(--brand-soft);color:var(--brand)}
+.pill.old{background:var(--warn-soft);color:var(--warn)}
+.muted{color:var(--muted)} .small{font-size:.82rem}
+.save-note{font-size:.8rem;color:var(--good);font-weight:600}
+footer{color:var(--muted);font-size:.78rem;margin-top:24px;line-height:1.6}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;
+justify-content:center;padding:32px 16px;overflow:auto;z-index:100}
+.modal-card{background:#fff;color:#1a2233;max-width:780px;width:100%;border-radius:14px;
+padding:22px 26px 26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal-x{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:1.2rem;
+line-height:1;cursor:pointer;color:#66738a}
+.modal-card h1{font-size:1.3rem;margin:0 0 4px;display:block}
+.modal-card h2{font-size:1rem;margin:22px 0 8px}
+.modal-card code{background:#eef1f6;padding:1px 6px;border-radius:5px}
+.modal-card ol{padding-left:22px} .modal-card li{margin:6px 0}
+.modal-card .note{background:#eef4ff;border:1px solid #cfd9f0;padding:11px 13px;border-radius:9px;font-size:.92rem}
+.modal-card pre{background:#0f1420;color:#e8edf5;padding:16px;border-radius:10px;overflow:auto;
+font-size:.78rem;line-height:1.5;white-space:pre}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;font-size:.9rem;padding:9px 16px;border-radius:9px;
+border:1px solid var(--brand);background:var(--brand);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn:hover{filter:brightness(1.06)}
+#printArea{display:none}
+@media print{
+body{background:#fff}
+.wrap{display:none !important}
+#printArea{display:block;color:#000;padding:8px}
+#printArea h1{font-size:17pt;margin:0 0 10px}
+#printArea pre{white-space:pre-wrap;word-break:break-word;font-size:9.5pt;line-height:1.45;
+font-family:"Consolas","Courier New",monospace}
+}
+.hidden{display:none}
+@media (max-width:520px){ header h1{font-size:1.2rem} .hero .tile .v{font-size:1.25rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1><svg class="flag" viewBox="0 0 36 24" role="img" aria-label="India flag"><rect width="36" height="24" rx="1.5" fill="#fff"/><rect width="36" height="8" fill="#FF9933"/><rect y="16" width="36" height="8" fill="#138808"/><circle cx="18" cy="12" r="3.4" fill="none" stroke="#000080" stroke-width=".5"/><g stroke="#000080" stroke-width=".35"><line x1="18" y1="8.6" x2="18" y2="15.4"/><line x1="18" y1="8.6" x2="18" y2="15.4" transform="rotate(30 18 12)"/><line x1="18" y1="8.6" x2="18" y2="15.4" transform="rotate(60 18 12)"/><line x1="18" y1="8.6" x2="18" y2="15.4" transform="rotate(90 18 12)"/><line x1="18" y1="8.6" x2="18" y2="15.4" transform="rotate(120 18 12)"/><line x1="18" y1="8.6" x2="18" y2="15.4" transform="rotate(150 18 12)"/></g><circle cx="18" cy="12" r=".8" fill="#000080"/></svg>File Me Up</h1>
+<span class="badge" id="fyBadge" title="See how the tax is calculated">Loading rules…</span>
+<span class="dot" id="engineDot"></span>
+</header>
+<p class="sub">Work out your monthly take-home pay and plan your income-tax return — old vs new regime.</p>
+
+<div id="configError" class="banner hidden"></div>
+
+<div class="tabs" id="tabs">
+<button data-tab="simple" class="active">Simple</button>
+<button data-tab="advanced">Advanced</button>
+</div>
+
+<!-- ============================ SIMPLE ============================ -->
+<section id="tab-simple">
+<div class="card">
+<h2>Just your CTC</h2>
+<div class="grid">
+<div class="field-money">
+<label>Annual CTC <span class="hint">(cost to company)</span></label>
+<input type="number" id="s_ctc" min="0" step="1000" placeholder="e.g. 1500000">
+</div>
+</div>
+<details class="assume">
+<summary>Assumptions (tap to adjust)</summary>
+<div class="grid">
+<div>
+<label>Basic as % of CTC <span class="hint">(typical 40)</span></label>
+<input type="number" id="s_basicpct" min="10" max="60" step="1">
+</div>
+<div>
+<label>Your state <span class="hint">(professional tax)</span></label>
+<select id="s_state"></select>
+</div>
+<div>
+<label>Age</label>
+<input type="number" id="s_age" min="18" max="100" step="1" value="30">
+</div>
+<div>
+<label class="check"><input type="checkbox" id="s_metro"> Live in a metro city</label>
+<label class="check"><input type="checkbox" id="s_ceiling"> Cap PF at ₹15,000 basic</label>
+</div>
+</div>
+</details>
+</div>
+<div id="simpleResults"></div>
+</section>
+
+<!-- ============================ ADVANCED ============================ -->
+<section id="tab-advanced" class="hidden">
+<div class="card">
+<h2>Your salary breakup</h2>
+<div style="margin-bottom:14px">
+<label>Amounts entered are</label>
+<div class="seg" id="a_period">
+<label><input type="radio" name="period" value="12" checked><span>Monthly</span></label>
+<label><input type="radio" name="period" value="1"><span>Annual</span></label>
+</div>
+</div>
+<h3>Earnings</h3>
+<div class="grid">
+<div class="field-money"><label>Basic</label><input type="number" id="a_basic" min="0" step="100"></div>
+<div class="field-money"><label>House Rent Allowance</label><input type="number" id="a_hra" min="0" step="100"></div>
+<div class="field-money"><label>Special allowance</label><input type="number" id="a_special" min="0" step="100"></div>
+<div class="field-money"><label>Conveyance allowance</label><input type="number" id="a_conveyance" min="0" step="100"></div>
+<div class="field-money"><label>Other allowances</label><input type="number" id="a_other" min="0" step="100"></div>
+</div>
+<h3>Deducted from salary</h3>
+<div class="grid">
+<div class="field-money"><label>Employee PF <span class="hint">(auto 12% of basic)</span></label><input type="number" id="a_pf" min="0" step="10"></div>
+<div>
+<label>State <span class="hint">(professional tax)</span></label>
+<select id="a_state"></select>
+</div>
+<div class="field-money"><label>Professional tax <span class="hint">(annual)</span></label><input type="number" id="a_pt" min="0" step="10"></div>
+<div><label>Age</label><input type="number" id="a_age" min="18" max="100" step="1" value="30"></div>
+</div>
+<h3>For the old regime (optional — for comparison &amp; planning)</h3>
+<div class="grid">
+<div class="field-money"><label>Monthly rent paid</label><input type="number" id="a_rent" min="0" step="100"></div>
+<div style="align-self:end"><label class="check"><input type="checkbox" id="a_metro"> Rented home is in a metro</label></div>
+<div class="field-money"><label>Employer NPS <span class="hint">80CCD(2)</span></label><input type="number" id="a_nps2" min="0" step="1000"></div>
+</div>
+<!-- deduction inputs + senior toggles are generated from tax-config.yaml -->
+<div id="a_deductions" class="grid"></div>
+<div id="a_seniorflags" class="grid" style="margin-top:12px"></div>
+</div>
+<div id="advancedResults"></div>
+</section>
+
+<footer>
+<p><strong>Estimate only — not tax advice.</strong> Figures are computed from the rules in
+<code>tax-config.yaml</code> and are for planning purposes. Verify against the Income Tax
+Department / a qualified advisor before filing. Rules shown: <span id="fyFoot">—</span>.</p>
+</footer>
+
+<div id="rulesModal" class="modal hidden" onclick="if(event.target===this)closeRules()">
+<div class="modal-card">
+<button class="modal-x" onclick="closeRules()" aria-label="Close">&#10005;</button>
+<div id="rulesBody"></div>
+</div>
+</div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+/* =================================================================== */
+/* ===ENGINE START=== (pure, DOM-free — also loaded by the test harness) */
+/* =================================================================== */
+
+/* ---------- tiny YAML reader (supports the subset used by tax-config.yaml) ---------- */
+function stripComment(line){
+let inS=false,inD=false;
+for(let i=0;i<line.length;i++){
+const c=line[i];
+if(c==='"'&&!inS)inD=!inD;
+else if(c==="'"&&!inD)inS=!inS;
+else if(c==='#'&&!inS&&!inD&&(i===0||/\s/.test(line[i-1]))) return line.slice(0,i);
+}
+return line;
+}
+function splitTop(str,delim){
+const out=[];let depth=0,inS=false,inD=false,cur='';
+for(const c of str){
+if(c==='"'&&!inS)inD=!inD;
+else if(c==="'"&&!inD)inS=!inS;
+if(!inS&&!inD){
+if(c==='{'||c==='[')depth++;
+else if(c==='}'||c===']')depth--;
+else if(c===delim&&depth===0){out.push(cur);cur='';continue;}
+}
+cur+=c;
+}
+out.push(cur);
+return out;
+}
+function splitKeyVal(line){
+let inS=false,inD=false;
+for(let i=0;i<line.length;i++){
+const c=line[i];
+if(c==='"'&&!inS)inD=!inD;
+else if(c==="'"&&!inD)inS=!inS;
+else if(c===':'&&!inS&&!inD&&(i+1>=line.length||line[i+1]===' ')) return i;
+}
+return -1;
+}
+function unquote(s){s=s.trim();return (s[0]==='"'&&s.endsWith('"'))||(s[0]==="'"&&s.endsWith("'"))?s.slice(1,-1):s;}
+function parseScalar(raw){
+const s=raw.trim();
+if(s==='') return null;
+if(s[0]==='{'||s[0]==='[') return parseFlow(s);
+if((s[0]==='"'&&s.endsWith('"'))||(s[0]==="'"&&s.endsWith("'"))) return s.slice(1,-1);
+if(s==='null'||s==='~') return null;
+if(s==='true') return true;
+if(s==='false') return false;
+if(/^-?\d+$/.test(s)) return parseInt(s,10);
+if(/^-?\d*\.\d+$/.test(s)) return parseFloat(s);
+return s;
+}
+function parseFlow(s){
+s=s.trim();
+if(s[0]==='{'){
+const obj={};
+for(const part of splitTop(s.slice(1,-1),',')){
+if(!part.trim())continue;
+const ci=splitKeyVal(part);
+obj[unquote(part.slice(0,ci))]=parseScalar(part.slice(ci+1));
+}
+return obj;
+}
+if(s[0]==='['){
+return splitTop(s.slice(1,-1),',').map(x=>x.trim()).filter(x=>x!=='').map(parseScalar);
+}
+return parseScalar(s);
+}
+function parseYAML(text){
+const lines=[];
+for(const raw of text.split(/\r?\n/)){
+const noComment=stripComment(raw);
+if(noComment.trim()==='') continue;
+lines.push({indent:noComment.match(/^ */)[0].length, text:noComment.trim()});
+}
+let pos=0;
+function block(indent){
+if(lines[pos].text.startsWith('- ')){
+const arr=[];
+while(pos<lines.length && lines[pos].indent===indent && lines[pos].text.startsWith('- ')){
+const rest=lines[pos].text.slice(2).trim();
+if(rest===''){ pos++; arr.push(pos<lines.length&&lines[pos].indent>indent?block(lines[pos].indent):null); }
+else { arr.push(parseScalar(rest)); pos++; }
+}
+return arr;
+}
+const obj={};
+while(pos<lines.length && lines[pos].indent===indent && !lines[pos].text.startsWith('- ')){
+const line=lines[pos].text;
+const ci=splitKeyVal(line);
+const key=unquote(line.slice(0,ci));
+const rest=line.slice(ci+1).trim();
+if(rest===''){
+pos++;
+obj[key]=(pos<lines.length && lines[pos].indent>indent)?block(lines[pos].indent):null;
+} else { obj[key]=parseScalar(rest); pos++; }
+}
+return obj;
+}
+return block(0);
+}
+
+/* ---------- tax engine (all figures annual unless noted) ---------- */
+function ageBand(age){
+age=Number(age)||30;
+if(age>=80) return 'super_senior_80_plus';
+if(age>=60) return 'senior_60_to_79';
+return 'below_60';
+}
+function slabTaxCalc(income, slabs){
+let tax=0, lower=0;
+for(const s of slabs){
+const upper=(s.up_to===null||s.up_to===undefined)?Infinity:s.up_to;
+if(income>lower) tax += (Math.min(income,upper)-lower)*(s.rate/100);
+lower=upper;
+if(income<=upper) break;
+}
+return tax;
+}
+function apply87A(tax, income, r){
+if(!r) return tax;
+if(income<=r.max_taxable_income) return Math.max(0, tax-r.max_rebate);
+if(r.marginal_relief) return Math.min(tax, income-r.max_taxable_income);
+return tax;
+}
+function computeSurcharge(taxAfterRebate, income, cfg, regime, age){
+const bands=cfg.surcharge.bands;
+let idx=-1;
+for(let k=0;k<bands.length;k++) if(income>bands[k].income_above) idx=k;
+if(idx<0) return {amount:0, relief:0, rate:0};
+const b=bands[idx];
+const rate=regime==='new'?b.rate_new:b.rate_old;
+let amount=taxAfterRebate*rate/100, relief=0;
+if(cfg.surcharge.marginal_relief){
+const T=b.income_above;
+const rc=regime==='new'?cfg.new_regime:cfg.old_regime;
+const slabs=regime==='new'?rc.slabs:rc.slabs_by_age[ageBand(age)];
+const taxAtT=apply87A(slabTaxCalc(T,slabs), T, rc.rebate_87a);
+const prevRate=idx>0?(regime==='new'?bands[idx-1].rate_new:bands[idx-1].rate_old):0;
+const surAtT=taxAtT*prevRate/100;
+const excessTax=(taxAfterRebate+amount)-(taxAtT+surAtT);
+const excessIncome=income-T;
+if(excessTax>excessIncome){ relief=excessTax-excessIncome; amount=Math.max(0,amount-relief); }
+}
+return {amount, relief, rate};
+}
+function computeTax(taxable, regime, age, cfg){
+taxable=Math.max(0,taxable);
+const rc=regime==='new'?cfg.new_regime:cfg.old_regime;
+const slabs=regime==='new'?rc.slabs:rc.slabs_by_age[ageBand(age)];
+const slab=slabTaxCalc(taxable,slabs);
+const afterRebate=apply87A(slab,taxable,rc.rebate_87a);
+const sc=computeSurcharge(afterRebate,taxable,cfg,regime,age);
+const cess=(afterRebate+sc.amount)*cfg.cess.rate/100;
+const round=cfg.meta.rounding_rupees||1;
+const total=Math.round((afterRebate+sc.amount+cess)/round)*round;
+return {taxableIncome:taxable, slabTax:slab, rebate:slab-afterRebate, afterRebate,
+surcharge:sc.amount, surchargeRelief:sc.relief, cess, total, monthly:Math.round(total/12)};
+}
+
+/* ---------- old-regime exemptions & deductions ---------- */
+function hraExemption(inp, cfg){
+const h=cfg.old_regime.hra;
+const salary=(inp.basicAnnual||0)+(inp.daAnnual||0);
+const actual=inp.hraAnnual||0, rent=inp.rentAnnual||0;
+if(actual<=0||rent<=0||salary<=0) return 0;
+const pct=inp.metro?h.metro_percent:h.non_metro_percent;
+return Math.max(0, Math.min(actual, salary*pct/100, rent - salary*h.rent_minus_percent_of_salary/100));
+}
+// Resolve a deduction field's cap for this person (handles the optional
+// senior-citizen higher limit, either via a ticked flag or by age >= 60).
+function resolveDedCap(f, inp){
+if(f.cap_senior!=null){
+const senior = f.senior_by_age ? (Number(inp.age)>=60)
+: (f.senior_flag ? !!(inp.flags && inp.flags[f.senior_flag]) : false);
+return senior ? f.cap_senior : f.cap;
+}
+return f.cap; // a number, or null = no limit
+}
+// Sum the old-regime Chapter VI-A deductions, driven entirely by the
+// deduction_fields list in tax-config.yaml (each capped to its limit).
+function chapterVIA(inp, cfg){
+const fields=(cfg.old_regime.deduction_fields)||[];
+let t=0;
+for(const f of fields){
+const entered=(inp.ded && inp.ded[f.key])||0;
+const cap=resolveDedCap(f, inp);
+t += (cap==null ? entered : Math.min(entered, cap));
+}
+return t;
+}
+function employerNps(inp, regime, cfg){
+const pct=(regime==='new'?cfg.new_regime.employer_nps_80ccd2_percent_of_basic
+:cfg.old_regime.employer_nps_80ccd2_percent_of_basic) ?? (regime==='new'?14:10);
+return Math.min(inp.employerNpsAnnual||0, (inp.basicAnnual||0)*pct/100);
+}
+
+/* ---------- one regime, end to end (annual figures + monthly take-home) ---------- */
+function computeRegime(inp, regime, cfg){
+const gross=inp.grossAnnual||0;
+const rc=regime==='new'?cfg.new_regime:cfg.old_regime;
+const stdDed=Math.min(rc.standard_deduction, gross);
+const nps2=employerNps(inp,regime,cfg);
+let hra=0, via=0, pt=0;
+if(regime==='old'){
+hra=hraExemption(inp,cfg);
+via=chapterVIA(inp,cfg);
+pt=inp.ptAnnual||0; // professional tax deductible only in old regime
+}
+const taxable=Math.max(0, gross - stdDed - nps2 - hra - via - pt);
+const tax=computeTax(taxable, regime, inp.age, cfg);
+const grossMonthly=gross/12;
+const pfMonthly=(inp.employeePFAnnual||0)/12;
+const ptMonthly=(inp.ptAnnual||0)/12; // PT reduces take-home in BOTH regimes
+const tdsMonthly=tax.monthly;
+return {regime, gross, stdDed, employerNps:nps2, hraExemption:hra, chapterVIA:via, ptDeduction:pt,
+taxable, tax,
+takeHome:{grossMonthly, pfMonthly, ptMonthly, tdsMonthly,
+netMonthly: grossMonthly - pfMonthly - ptMonthly - tdsMonthly}};
+}
+function computeBoth(inp, cfg){ return {new:computeRegime(inp,'new',cfg), old:computeRegime(inp,'old',cfg)}; }
+
+/* ---------- Simple mode: derive a salary breakup from CTC ---------- */
+function computeFromCTC(ctc, opts, cfg){
+const p=cfg.payroll;
+const basic=ctc*(opts.basicPct||p.default_basic_percent_of_ctc)/100;
+const pfBase=opts.useCeiling?Math.min(basic, p.epf_wage_ceiling*12):basic;
+const employerPF=pfBase*p.employer_pf_percent_of_basic/100;
+const gratuity=basic*p.gratuity_percent_of_basic/100;
+const gross=Math.max(0, ctc - employerPF - gratuity);
+const employeePF=pfBase*p.epf_employee_percent/100;
+const pt=(cfg.professional_tax.by_state[opts.state] ?? cfg.professional_tax.by_state.default)||0;
+const inp={grossAnnual:gross, basicAnnual:basic,
+hraAnnual:basic*(opts.metro?cfg.old_regime.hra.metro_percent:cfg.old_regime.hra.non_metro_percent)/100,
+employeePFAnnual:employeePF, ptAnnual:pt, age:opts.age,
+ded:{c80:employeePF}, flags:{} /* PF counts under 80C in the old regime */};
+return {breakup:{basic, employerPF, gratuity, gross, employeePF, pt}, both:computeBoth(inp,cfg)};
+}
+
+/* ---------- config validation (structure, not tax values) ----------
+Checks tax-config.yaml is well-formed and complete. It does NOT check that
+the tax numbers equal any fixed figure — you verify those after editing. */
+function validateConfig(cfg){
+const e=[];
+const isNum=x=>typeof x==='number'&&isFinite(x);
+const chkSlabs=(arr,path)=>{
+if(!Array.isArray(arr)||!arr.length){ e.push(path+' must be a non-empty list of {up_to, rate}'); return; }
+arr.forEach((s,i)=>{
+if(!s||typeof s!=='object'){ e.push(path+'['+i+'] is malformed'); return; }
+if(!(s.up_to===null||isNum(s.up_to))) e.push(path+'['+i+'].up_to must be a number or null');
+if(!isNum(s.rate)) e.push(path+'['+i+'].rate must be a number');
+});
+if(arr.length && arr[arr.length-1].up_to!==null) e.push(path+': the last band must end with up_to: null');
+};
+if(!cfg||typeof cfg!=='object') return {ok:false, errors:['tax-config.yaml did not parse into a config object']};
+if(!cfg.meta||!cfg.meta.financial_year) e.push('meta.financial_year is missing');
+if(!cfg.meta||!isNum(cfg.meta.rounding_rupees)) e.push('meta.rounding_rupees must be a number');
+if(!cfg.cess||!isNum(cfg.cess.rate)) e.push('cess.rate must be a number');
+if(!cfg.new_regime){ e.push('new_regime section is missing'); }
+else{
+if(!isNum(cfg.new_regime.standard_deduction)) e.push('new_regime.standard_deduction must be a number');
+chkSlabs(cfg.new_regime.slabs,'new_regime.slabs');
+const r=cfg.new_regime.rebate_87a;
+if(!r||!isNum(r.max_taxable_income)||!isNum(r.max_rebate)) e.push('new_regime.rebate_87a needs numeric max_taxable_income & max_rebate');
+}
+if(!cfg.old_regime){ e.push('old_regime section is missing'); }
+else{
+if(!isNum(cfg.old_regime.standard_deduction)) e.push('old_regime.standard_deduction must be a number');
+const sba=cfg.old_regime.slabs_by_age;
+if(!sba) e.push('old_regime.slabs_by_age is missing');
+else ['below_60','senior_60_to_79','super_senior_80_plus'].forEach(k=>{
+if(!sba[k]) e.push('old_regime.slabs_by_age.'+k+' is missing'); else chkSlabs(sba[k],'old_regime.slabs_by_age.'+k);
+});
+const r=cfg.old_regime.rebate_87a;
+if(!r||!isNum(r.max_taxable_income)||!isNum(r.max_rebate)) e.push('old_regime.rebate_87a needs numeric max_taxable_income & max_rebate');
+const h=cfg.old_regime.hra;
+if(!h||!isNum(h.metro_percent)||!isNum(h.non_metro_percent)||!isNum(h.rent_minus_percent_of_salary))
+e.push('old_regime.hra needs numeric metro_percent, non_metro_percent, rent_minus_percent_of_salary');
+if(!Array.isArray(cfg.old_regime.deduction_fields)) e.push('old_regime.deduction_fields must be a list');
+else{
+const seen={};
+cfg.old_regime.deduction_fields.forEach((f,i)=>{
+const id='deduction_fields['+i+']'+(f&&f.key?' ('+f.key+')':'');
+if(!f||typeof f!=='object'){ e.push(id+' is malformed'); return; }
+if(!f.key) e.push(id+'.key is missing'); else if(seen[f.key]) e.push(id+'.key "'+f.key+'" is duplicated'); else seen[f.key]=1;
+if(!f.label) e.push(id+'.label is missing');
+if(!(f.cap===null||isNum(f.cap))) e.push(id+'.cap must be a number or null');
+if(f.cap_senior!=null && !isNum(f.cap_senior)) e.push(id+'.cap_senior must be a number');
+});
+}
+if(cfg.old_regime.senior_flags && !Array.isArray(cfg.old_regime.senior_flags))
+e.push('old_regime.senior_flags must be a list if present');
+}
+if(!cfg.surcharge||!Array.isArray(cfg.surcharge.bands)) e.push('surcharge.bands must be a list');
+else cfg.surcharge.bands.forEach((b,i)=>{
+if(!b||!isNum(b.income_above)||!isNum(b.rate_old)||!isNum(b.rate_new))
+e.push('surcharge.bands['+i+'] needs numeric income_above, rate_old, rate_new');
+});
+if(!cfg.payroll||!isNum(cfg.payroll.epf_employee_percent)) e.push('payroll.epf_employee_percent must be a number');
+if(!cfg.professional_tax||!cfg.professional_tax.by_state||cfg.professional_tax.by_state.default===undefined)
+e.push('professional_tax.by_state must exist and include a default');
+return {ok:e.length===0, errors:e};
+}
+
+/* ---------- output sanity check (invariants, NOT fixed values) ----------
+Runs the loaded rules through the engine and checks the RESULTS are sane —
+without asserting any specific FY figure. Catches a structurally-valid but
+nonsensical edit (typo'd rate, mis-ordered slab, rebate too small, NaN). */
+function sanityCheck(cfg){
+const issues=[]; const seen={};
+const add=m=>{ if(!seen[m]){ seen[m]=1; issues.push(m); } };
+try{
+['new','old'].forEach(regime=>{
+const rc=regime==='new'?cfg.new_regime:cfg.old_regime;
+const label=regime==='new'?'New regime':'Old regime';
+if(computeTax(0,regime,30,cfg).total!==0) add(label+': tax on ₹0 income should be 0');
+const ceil=rc.rebate_87a&&rc.rebate_87a.max_taxable_income;
+if(ceil && computeTax(ceil,regime,30,cfg).total!==0)
+add(label+': the 87A rebate should make tax nil at ₹'+ceil+' — check max_rebate vs the slabs');
+let prev=-1, monthlyFlagged=false;
+for(let inc=0; inc<=30000000; inc+=100000){
+const t=computeTax(inc,regime,30,cfg);
+if(!isFinite(t.total)){ add(label+': tax is not a number near ₹'+inc); break; }
+if(t.total<0){ add(label+': negative tax near ₹'+inc); break; }
+if(inc>0 && t.total>inc){ add(label+': tax exceeds income near ₹'+inc+' (a rate looks wrong)'); break; }
+if(t.total < prev-1){ add(label+': tax DROPS as income rises near ₹'+inc+' (slabs mis-ordered / bad rate?)'); break; }
+if(!monthlyFlagged && Math.abs(t.monthly*12 - t.total) > (cfg.meta.rounding_rupees||1)*12+12){
+add(label+': monthly TDS × 12 does not match the annual tax'); monthlyFlagged=true;
+}
+prev=t.total;
+}
+});
+}catch(e){ add('the engine errored while checking the rules: '+(e&&e.message||e)); }
+return {ok:issues.length===0, issues};
+}
+
+/* =================================================================== */
+/* ===ENGINE END=== */
+/* =================================================================== */
+
+/* The on-load check is now validateConfig() (in the engine block above) — it
+validates the YAML's structure, not specific tax outputs. */
+
+/* ------------------------------- UI ------------------------------- */
+var CFG=null, CFG_TEXT='';
+const $=id=>document.getElementById(id);
+function fmtINR(n){
+n=Math.round(n||0); const neg=n<0; n=Math.abs(n);
+let s=String(n);
+if(s.length>3){ const l3=s.slice(-3); let r=s.slice(0,-3).replace(/\B(?=(\d{2})+(?!\d))/g,','); s=r+','+l3; }
+return (neg?'-₹':'₹')+s;
+}
+const num=id=>{const v=parseFloat($(id).value);return isFinite(v)?v:0;};
+
+/* ---- export the current analysis (LAST) as plain text / PDF ---- */
+var LAST=null;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const exportCard=()=>`
+<div class="card">
+<h2>Export this analysis</h2>
+<p class="small muted">Save it to share with your CA, or paste into ChatGPT / Claude for a second opinion.</p>
+<div class="btnrow">
+<button class="btn" onclick="downloadTxt()">&#8681;&nbsp; Download .txt</button>
+<button class="btn ghost" onclick="printPDF()">&#128424;&nbsp; Save as PDF</button>
+</div>
+</div>`;
+
+function regimeTxt(name,r){
+const t=r.tax,h=r.takeHome,L=[],p=(k,v)=>' '+k.padEnd(22)+v;
+L.push(' '+name);
+L.push(p('Taxable income',fmtINR(t.taxableIncome)));
+L.push(p('Tax on slabs',fmtINR(t.slabTax)));
+if(t.rebate>0) L.push(p('Less 87A rebate','-'+fmtINR(t.rebate)));
+if(t.surcharge>0) L.push(p('Surcharge',fmtINR(t.surcharge)+(t.surchargeRelief>0?' (after relief -'+fmtINR(t.surchargeRelief)+')':'')));
+L.push(p('Health & edu. cess',fmtINR(t.cess)));
+L.push(p('Total annual tax',fmtINR(t.total)));
+L.push(p('Monthly TDS',fmtINR(t.monthly)));
+L.push(p('Monthly take-home',fmtINR(h.netMonthly)));
+return L.join('\n');
+}
+function buildReport(){
+const d=LAST; if(!d) return 'Enter your details first.';
+const bar='============================================================';
+const dash='------------------------------------------------------------';
+const p=(k,v)=>' '+k.padEnd(22)+v;
+const o=[bar,' FILE ME UP — SALARY & TAX ANALYSIS',bar];
+o.push('Rules : FY '+CFG.meta.financial_year+' (AY '+CFG.meta.assessment_year+')');
+o.push('Mode : '+(d.mode==='simple'?'Simple (estimated from CTC)':'Advanced (from salary breakup)'));
+try{ o.push('Date : '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})); }catch(e){}
+o.push('','INPUTS',dash);
+if(d.mode==='simple'){
+o.push(p('Annual CTC',fmtINR(d.ctc)));
+o.push(p('Basic assumed',d.opts.basicPct+'% of CTC = '+fmtINR(d.breakup.basic)));
+o.push(p('Metro city',d.opts.metro?'Yes':'No'));
+o.push(p('State (prof. tax)',d.opts.state));
+o.push(p('Age',String(d.opts.age)));
+o.push(p('Employer PF (in CTC)',fmtINR(d.breakup.employerPF)));
+o.push(p('Gratuity (in CTC)',fmtINR(d.breakup.gratuity)));
+o.push(p('Derived gross / yr',fmtINR(d.breakup.gross)));
+} else {
+const i=d.inp;
+o.push(p('Basic (annual)',fmtINR(i.basicAnnual)));
+o.push(p('HRA (annual)',fmtINR(i.hraAnnual)));
+o.push(p('Gross salary (annual)',fmtINR(i.grossAnnual)));
+o.push(p('Age',String(i.age)));
+o.push(p('Home / rent',(i.metro?'Metro':'Non-metro')+', rent '+fmtINR(i.rentAnnual)+'/yr'));
+o.push(p('Employee PF (annual)',fmtINR(i.employeePFAnnual)));
+o.push(p('Professional tax / yr',fmtINR(i.ptAnnual)));
+o.push(' Old-regime deductions entered:');
+(CFG.old_regime.deduction_fields||[]).forEach(f=>{ const v=(i.ded&&i.ded[f.key])||0; if(v>0) o.push(' '+f.label+': '+fmtINR(v)); });
+if(i.employerNpsAnnual>0) o.push(' Employer NPS 80CCD(2): '+fmtINR(i.employerNpsAnnual));
+}
+o.push('','RESULTS (annual unless marked /mo)',dash);
+o.push(regimeTxt('NEW REGIME',d.both.new),'',regimeTxt('OLD REGIME',d.both.old),'');
+const dn=d.both.new.tax.total, doo=d.both.old.tax.total;
+if(Math.abs(dn-doo)<10) o.push('RECOMMENDATION: both regimes cost about the same ('+fmtINR(dn)+').');
+else { const win=dn<doo?'NEW':'OLD', save=Math.abs(dn-doo);
+o.push('RECOMMENDATION: '+win+' regime is cheaper by '+fmtINR(save)+'/yr ('+fmtINR(save/12)+'/mo more in hand).'); }
+const rec=dn<=doo?d.both.new:d.both.old, recName=dn<=doo?'new':'old', h=rec.takeHome;
+o.push('','MONTHLY TAKE-HOME ('+recName+' regime)',dash);
+o.push(p('Gross salary',fmtINR(h.grossMonthly)));
+o.push(p('Less employee PF','-'+fmtINR(h.pfMonthly)));
+o.push(p('Less professional tax','-'+fmtINR(h.ptMonthly)));
+o.push(p('Less income tax (TDS)','-'+fmtINR(h.tdsMonthly)));
+o.push(p('NET TAKE-HOME',fmtINR(h.netMonthly)));
+if(d.mode==='advanced' && d.planner){
+o.push('','DEDUCTION PLANNER (old regime)',dash);
+for(const r of d.planner){
+let s=' '+r.label+': used '+fmtINR(r.used)+(r.hra?' (exempt)':(r.cap!=null?' / '+fmtINR(r.cap):' (no limit)'));
+if(r.savedNow>0) s+=' | saves '+fmtINR(r.savedNow)+' now';
+if(r.more>0 && r.headroom>0) s+=' | +'+fmtINR(r.more)+' if you add '+fmtINR(r.headroom);
+o.push(s);
+}
+}
+o.push('',dash,
+'Estimate only - NOT tax advice. Figures from a personal calculator using',
+'tax-config.yaml for FY '+CFG.meta.financial_year+'. Verify with a qualified CA / incometax.gov.in.');
+return o.join('\n');
+}
+function downloadTxt(){
+if(!LAST) return;
+const blob=new Blob([buildReport()],{type:'text/plain;charset=utf-8'});
+const url=URL.createObjectURL(blob), a=document.createElement('a');
+a.href=url; a.download='salary-tax-analysis.txt';
+document.body.appendChild(a); a.click(); a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+function printPDF(){
+if(!LAST) return;
+$('printArea').innerHTML='<h1>File Me Up — Salary &amp; Tax Analysis</h1><pre>'+esc(buildReport())+'</pre>';
+window.print();
+}
+
+/* Open a self-contained window explaining the calculation + showing the live YAML rules. */
+function openRules(){
+if(!CFG) return;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const style='body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;max-width:780px;'
++'margin:28px auto;padding:0 18px;color:#1a2233;background:#fff;line-height:1.6}'
++'h1{font-size:1.35rem;margin:0 0 4px}h2{font-size:1.02rem;margin:26px 0 8px}'
++'code{background:#eef1f6;padding:1px 6px;border-radius:5px;font-size:.9em}'
++'ol{padding-left:22px}li{margin:6px 0}'
++'.note{background:#eef4ff;border:1px solid #cfd9f0;padding:11px 13px;border-radius:9px;font-size:.92rem}'
++'pre{background:#0f1420;color:#e8edf5;padding:16px;border-radius:12px;overflow:auto;font-size:.8rem;line-height:1.5;white-space:pre}';
+const body='<h1>How your tax is calculated</h1>'
++'<p class="note">These are the <b>exact</b> rules this calculator uses for <b>FY '+CFG.meta.financial_year
++' (AY '+CFG.meta.assessment_year+')</b>, read live from <code>tax-config.yaml</code>. '
++'Change that file and the calculator updates — none of this is hard-coded.</p>'
++'<h2>The calculation, step by step</h2><ol>'
++'<li><b>Taxable income</b> = gross salary − standard deduction. In the <b>old regime</b> you also subtract '
++'HRA exemption, Chapter VI-A deductions (80C, 80D, 80CCD(1B), home-loan interest…) and professional tax.</li>'
++'<li><b>Slab tax</b>: the slab rates below are applied band by band to the taxable income.</li>'
++'<li><b>Section 87A rebate</b>: if taxable income is within the rebate limit, tax is cut (often to zero). '
++'The new regime eases the edge with marginal relief; the old regime is a hard cut-off.</li>'
++'<li><b>Surcharge</b>: only above ₹50 lakh, with marginal relief so the extra tax can’t exceed the extra income.</li>'
++'<li><b>Health &amp; Education cess</b> of '+CFG.cess.rate+'% is added on (tax + surcharge).</li>'
++'<li>The total is rounded to the nearest ₹'+CFG.meta.rounding_rupees+'. <b>Monthly TDS</b> = annual tax ÷ 12.</li>'
++'</ol>'
++'<p><b>Take-home</b> each month = gross ÷ 12 − your PF − professional tax − monthly TDS.</p>'
++'<h2>The rules file — tax-config.yaml</h2><pre>'+esc(CFG_TEXT)+'</pre>'
++'<p style="color:#66738a;font-size:.85rem">Estimate only — not tax advice.</p>';
+const doc='<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
++'<meta name="viewport" content="width=device-width, initial-scale=1">'
++'<title>How the tax is calculated — FY '+CFG.meta.financial_year+'</title><style>'+style+'</style></head><body>'+body+'</body></html>';
+// Prefer a real new window; fall back to an in-page panel if pop-ups are blocked.
+let w=null;
+try{ const url=URL.createObjectURL(new Blob([doc],{type:'text/html'})); w=window.open(url,'_blank');
+if(w){ setTimeout(()=>URL.revokeObjectURL(url),30000); } else { URL.revokeObjectURL(url); } }
+catch(e){ w=null; }
+if(!w){ $('rulesBody').innerHTML=body; $('rulesModal').classList.remove('hidden'); }
+}
+function closeRules(){ $('rulesModal').classList.add('hidden'); }
+
+async function boot(){
+try{
+const res=await fetch('tax-config.yaml',{cache:'no-store'});
+if(!res.ok) throw new Error('HTTP '+res.status);
+CFG_TEXT=await res.text();
+CFG=parseYAML(CFG_TEXT);
+}catch(err){
+$('configError').classList.remove('hidden');
+$('configError').innerHTML='<strong>Could not load tax-config.yaml.</strong> '+
+'Browsers block reading a local file when you open the page by double-clicking it. '+
+'Serve the folder over http instead — e.g. run <code>python -m http.server</code> in this folder, '+
+'then open <code>http://localhost:8000</code>. <br><span class="small muted">('+err.message+')</span>';
+$('fyBadge').textContent='rules not loaded';
+return;
+}
+const v=validateConfig(CFG);
+if(!v.ok){
+$('fyBadge').textContent='config invalid';
+$('engineDot').innerHTML='<span class="err">⚠ config invalid — see below</span>';
+$('configError').classList.remove('hidden');
+$('configError').innerHTML='<strong>tax-config.yaml needs fixing:</strong><ul>'+
+v.errors.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+console.error('tax-config.yaml validation errors:',v.errors);
+return;
+}
+$('fyBadge').innerHTML='Rules: FY '+CFG.meta.financial_year+' (AY '+CFG.meta.assessment_year+') &#8599;';
+$('fyBadge').onclick=openRules;
+$('fyFoot').textContent='FY '+CFG.meta.financial_year+' / AY '+CFG.meta.assessment_year;
+const s=sanityCheck(CFG);
+if(s.ok){
+$('engineDot').innerHTML='<span class="ok">✓ config verified</span>';
+} else {
+$('engineDot').innerHTML='<span class="err">⚠ output looks off — see below</span>';
+$('configError').classList.remove('hidden');
+$('configError').innerHTML='<strong>The rules loaded, but a sanity check flagged the numbers:</strong><ul>'+
+s.issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
+'<span class="small muted">The calculator still runs — double-check your YAML values.</span>';
+console.warn('sanity-check issues:',s.issues);
+}
+
+// populate state dropdowns
+const states=Object.keys(CFG.professional_tax.by_state).filter(s=>s!=='default').sort();
+const opts='<option value="default">Other / none</option>'+states.map(s=>`<option value="${s}">${s}</option>`).join('');
+$('s_state').innerHTML=opts; $('a_state').innerHTML=opts;
+$('s_basicpct').value=CFG.payroll.default_basic_percent_of_ctc;
+syncPT('a_state','a_pt');
+buildDeductionFields();
+
+// wire events
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+document.querySelectorAll('#tab-simple input, #tab-simple select').forEach(el=>el.addEventListener('input',renderSimple));
+document.querySelectorAll('#tab-advanced input, #tab-advanced select').forEach(el=>el.addEventListener('input',renderAdvanced));
+$('a_basic').addEventListener('input',autoPF);
+$('a_state').addEventListener('input',()=>{syncPT('a_state','a_pt');renderAdvanced();});
+renderSimple(); renderAdvanced();
+}
+function switchTab(t){
+document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+$('tab-simple').classList.toggle('hidden',t!=='simple');
+$('tab-advanced').classList.toggle('hidden',t!=='advanced');
+}
+function syncPT(stateId,ptId){
+const v=(CFG.professional_tax.by_state[$(stateId).value] ?? CFG.professional_tax.by_state.default)||0;
+$(ptId).value=v;
+}
+function autoPF(){ $('a_pf').value=Math.round(num('a_basic')*CFG.payroll.epf_employee_percent/100); }
+// Build the old-regime deduction inputs + senior-flag checkboxes from the YAML.
+function buildDeductionFields(){
+$('a_deductions').innerHTML=(CFG.old_regime.deduction_fields||[]).map(f=>{
+const hint=f.hint?` <span class="hint">${esc(f.hint)}</span>`:'';
+return `<div class="field-money"><label>${esc(f.label)}${hint}</label>`
++`<input type="number" id="ded_${f.key}" min="0" step="1000"></div>`;
+}).join('');
+$('a_seniorflags').innerHTML=(CFG.old_regime.senior_flags||[]).map(fl=>
+`<div><label class="check"><input type="checkbox" id="flag_${fl.key}"> ${esc(fl.label)}</label></div>`).join('');
+}
+
+/* ---- render helpers ---- */
+function heroTile(title, r, pick){
+const th=r.takeHome;
+return `<div class="tile ${pick?'pick':''}">
+<div class="k">${title} ${pick?'✓':''}</div>
+<div class="v">${fmtINR(th.netMonthly)}<span class="s"> /mo</span></div>
+<div class="s">Annual tax ${fmtINR(r.tax.total)} · TDS ${fmtINR(th.tdsMonthly)}/mo</div>
+</div>`;
+}
+function breakdownTable(r){
+const th=r.takeHome;
+return `<table><tbody>
+<tr><td>Gross salary (monthly)</td><td>${fmtINR(th.grossMonthly)}</td></tr>
+<tr><td>− Employee PF</td><td class="neg">${fmtINR(-th.pfMonthly)}</td></tr>
+<tr><td>− Professional tax</td><td class="neg">${fmtINR(-th.ptMonthly)}</td></tr>
+<tr><td>− Income tax (TDS)</td><td class="neg">${fmtINR(-th.tdsMonthly)}</td></tr>
+<tr class="total"><td>Net take-home (monthly)</td><td>${fmtINR(th.netMonthly)}</td></tr>
+</tbody></table>`;
+}
+function taxRows(r){
+const t=r.tax;
+let rows=`<tr><td>Taxable income</td><td>${fmtINR(t.taxableIncome)}</td></tr>
+<tr><td>Tax on slabs</td><td>${fmtINR(t.slabTax)}</td></tr>`;
+if(t.rebate>0) rows+=`<tr><td>− 87A rebate</td><td class="pos">${fmtINR(-t.rebate)}</td></tr>`;
+if(t.surcharge>0){ rows+=`<tr><td>+ Surcharge</td><td>${fmtINR(t.surcharge)}</td></tr>`;
+if(t.surchargeRelief>0) rows+=`<tr><td class="small muted">(incl. marginal relief −${fmtINR(t.surchargeRelief)})</td><td></td></tr>`; }
+rows+=`<tr><td>+ Health &amp; education cess</td><td>${fmtINR(t.cess)}</td></tr>
+<tr class="total"><td>Total annual tax</td><td>${fmtINR(t.total)}</td></tr>`;
+return `<table><tbody>${rows}</tbody></table>`;
+}
+function verdict(both){
+const dn=both.new.tax.total, doo=both.old.tax.total;
+if(Math.abs(dn-doo)<10) return `<div class="verdict tie">Both regimes cost about the same (${fmtINR(dn)}).</div>`;
+const win=dn<doo?'New':'Old', save=Math.abs(dn-doo);
+return `<div class="verdict"><b>${win} regime</b> is cheaper for you — you save <b>${fmtINR(save)}</b> a year
+(${fmtINR(save/12)}/month more in hand).</div>`;
+}
+
+function renderSimple(){
+if(!CFG) return;
+const ctc=num('s_ctc');
+const box=$('simpleResults');
+if(ctc<=0){ box.innerHTML=''; LAST=null; return; }
+const opts={basicPct:num('s_basicpct'), metro:$('s_metro').checked, state:$('s_state').value,
+age:num('s_age'), useCeiling:$('s_ceiling').checked};
+const {breakup,both}=computeFromCTC(ctc,opts,CFG);
+LAST={mode:'simple', ctc, opts, breakup, both};
+const rec=both.new.tax.total<=both.old.tax.total?'new':'old';
+box.innerHTML=`
+<div class="card">
+<h2>Your monthly take-home</h2>
+<div class="hero">
+${heroTile('New regime', both.new, rec==='new')}
+${heroTile('Old regime *', both.old, rec==='old')}
+</div>
+${verdict(both)}
+<h3>Breakdown — ${rec==='new'?'new':'old'} regime</h3>
+${breakdownTable(both[rec])}
+<p class="small muted" style="margin-top:14px">
+Estimated from CTC assuming basic = ${opts.basicPct}% of CTC, employer PF &amp; gratuity carved out,
+and — for the old regime (*) — only your PF counted under 80C. For an accurate old-vs-new comparison,
+use <b>Advanced</b> mode with your real numbers.</p>
+</div>
+${exportCard()}`;
+}
+
+function readAdvancedInputs(){
+const m=parseFloat(document.querySelector('#a_period input:checked').value); // 12=monthly, 1=annual
+const basic=num('a_basic')*m, hra=num('a_hra')*m, special=num('a_special')*m,
+conv=num('a_conveyance')*m, other=num('a_other')*m;
+const gross=basic+hra+special+conv+other;
+const ded={}; (CFG.old_regime.deduction_fields||[]).forEach(f=>ded[f.key]=num('ded_'+f.key));
+const flags={}; (CFG.old_regime.senior_flags||[]).forEach(fl=>{const el=$('flag_'+fl.key); flags[fl.key]=el?el.checked:false;});
+return {
+grossAnnual:gross, basicAnnual:basic, hraAnnual:hra,
+rentAnnual:num('a_rent')*12, metro:$('a_metro').checked, age:num('a_age'),
+employeePFAnnual:num('a_pf')*m, ptAnnual:num('a_pt'),
+employerNpsAnnual:num('a_nps2'), ded, flags
+};
+}
+function computePlanner(inp){
+const base=computeRegime(inp,'old',CFG).tax.total;
+const rows=(CFG.old_regime.deduction_fields||[]).map(f=>{
+const cap=resolveDedCap(f, inp);
+const entered=(inp.ded && inp.ded[f.key])||0;
+const used=cap==null?entered:Math.min(entered,cap);
+const savedNow=computeRegime({...inp, ded:{...inp.ded,[f.key]:0}},'old',CFG).tax.total-base;
+let more=0, headroom=0;
+if(cap!=null){
+more=base-computeRegime({...inp, ded:{...inp.ded,[f.key]:cap}},'old',CFG).tax.total;
+headroom=cap-used;
+}
+return {label:f.label, cap, used, savedNow, more, headroom};
+});
+const hra=hraExemption(inp,CFG);
+if(hra>0){
+const savedHra=computeRegime({...inp,hraAnnual:0,rentAnnual:0},'old',CFG).tax.total-base;
+rows.push({label:'HRA exemption', hra:true, cap:null, used:hra, savedNow:savedHra, more:0, headroom:0});
+}
+return rows;
+}
+function plannerTable(rows){
+let body='';
+for(const r of rows){
+let usedCell, extraCell;
+if(r.hra){ usedCell=`${fmtINR(r.used)} <span class="small muted">exempt</span>`;
+extraCell='<span class="small muted">depends on rent</span>'; }
+else if(r.cap==null){ usedCell=`${fmtINR(r.used)} <span class="small muted">(no limit)</span>`;
+extraCell='—'; }
+else { usedCell=`${fmtINR(r.used)} <span class="small muted">/ ${fmtINR(r.cap)}</span>`;
+extraCell=(r.more>0&&r.headroom>0)?`<span class="save-note">+${fmtINR(r.more)}</span> <span class="small muted">if you add ${fmtINR(r.headroom)}</span>`:'—'; }
+body+=`<tr><td>${r.label}</td><td>${usedCell}</td>
+<td class="${r.savedNow>0?'pos':''}">${r.savedNow>0?fmtINR(r.savedNow):'—'}</td>
+<td>${extraCell}</td></tr>`;
+}
+return `<table><thead><tr><th>Deduction</th><th>Used</th><th>Tax saved now</th><th>Extra if maximised</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+function renderAdvanced(){
+if(!CFG) return;
+const inp=readAdvancedInputs();
+const box=$('advancedResults');
+if(inp.grossAnnual<=0){ box.innerHTML=''; LAST=null; return; }
+const both=computeBoth(inp,CFG);
+const planner=computePlanner(inp);
+LAST={mode:'advanced', inp, both, planner};
+const rec=both.new.tax.total<=both.old.tax.total?'new':'old';
+box.innerHTML=`
+<div class="card">
+<h2>Old vs New regime</h2>
+<div class="hero">
+${heroTile('New regime', both.new, rec==='new')}
+${heroTile('Old regime', both.old, rec==='old')}
+</div>
+${verdict(both)}
+</div>
+<div class="card">
+<h2>Take-home & tax — ${rec==='new'?'new':'old'} regime <span class="pill ${rec}">${rec==='new'?'NEW':'OLD'}</span></h2>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
+<div>${breakdownTable(both[rec])}</div>
+<div>${taxRows(both[rec])}</div>
+</div>
+</div>
+<div class="card">
+<h2>Deduction &amp; investment planner <span class="pill old">OLD REGIME</span></h2>
+<p class="small muted">Deductions only reduce tax under the <b>old</b> regime. "Tax saved now" is what your current
+entries save; "extra if maximised" is what you'd save by using the full limit.</p>
+${plannerTable(planner)}
+${both.old.hraExemption?'':'<p class="small muted">Enter your rent + basic to see HRA exemption.</p>'}
+</div>
+${exportCard()}`;
+}
+
+boot();
+</script>
+</body>
+</html>
